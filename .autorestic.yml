@@ -1,0 +1,113 @@
+version: 2
+
+extras:
+  forgot: &keep
+      keep-daily: 10
+      keep-weekly: 10
+      keep-monthly: 10
+      
+
+locations:
+  nextcloud-db:
+    from: /backup/nextcloud
+    to: bb-db
+    hooks:
+      before:
+        - /backup_scripts/nextcloud.sh -s oci-somnath -n nextcloud-nextcloud-1 -c "maintenance:mode --on"
+        - /backup_scripts/dpg.sh -s oci-somnath -c nextcloud-db-1 -u nextcloud -d /backup/nextcloud/
+        - /backup_scripts/nextcloud.sh -s oci-somnath -n nextcloud-nextcloud-1 -c "maintenance:mode --off"
+      after:
+        - /backup_scripts/keep_upto.sh /backup/nextcloud/ .sql 0
+      success:
+        - cat ~/autorestic.log | /backup_scripts/send_email.sh "Nextcloud DB Backup SUCCESS" zkhan1093@gmail.com 
+      failure:
+        - cat ~/autorestic.log | /backup_scripts/send_email.sh "Nextcloud DB Backup FAILED" zkhan1093@gmail.com
+    cron: '0 0 * * *' # daily
+    options:
+      forget:
+        <<: *keep
+
+  nextcloud-html:
+    to: bb-data
+    from: /backup/nextcloud-html
+    hooks:
+      before:
+        - /backup_scripts/nextcloud.sh -s oci-somnath -n nextcloud-nextcloud-1 -c "maintenance:mode --on"
+        - /backup_scripts/drd.sh -r oci-somnath -s nextcloud_nextcloud -d /backup/nextcloud-html -p nextcloud-html -v
+        - /backup_scripts/nextcloud.sh -s oci-somnath -n nextcloud-nextcloud-1 -c "maintenance:mode --off"
+      after:
+        - /backup_scripts/keep_upto.sh /backup/nextcloud-html/ . 0
+      success:
+        - cat ~/autorestic.log | /backup_scripts/send_email.sh "Nextcloud Data Backup SUCCESS" zkhan1093@gmail.com 
+      failure:
+        - cat ~/autorestic.log | /backup_scripts/send_email.sh "Nextcloud Data Backup FAILED" zkhan1093@gmail.com 
+    cron: '0 0 * * *' # daily
+    options:
+      forget:
+        <<: *keep
+
+  immich-db:
+    from: /backup/immich
+    to: bb-db
+    hooks:
+      before:
+        - /backup_scripts/dpg.sh -c immich_postgres -u postgres -d /backup/immich/
+      after:
+        - /backup_scripts/keep_upto.sh /backup/immich/ .sql 0
+      success:
+        - cat ~/autorestic.log | /backup_scripts/send_email.sh "Immich DB Backup SUCCESS" zkhan1093@gmail.com 
+      failure:
+        - cat ~/autorestic.log | /backup_scripts/send_email.sh "Immich DB Backup FAILED" zkhan1093@gmail.com 
+    cron: '0 0 * * *' # daily
+    options:
+      forget:
+        <<: *keep
+
+  immich-data:
+    to: bb-data
+    from: /mnt/media2/immich-data/library
+    hooks:
+      success:
+        - cat ~/autorestic.log | /backup_scripts/send_email.sh "Immich Data Backup SUCCESS" zkhan1093@gmail.com 
+      failure:
+        - cat ~/autorestic.log | /backup_scripts/send_email.sh "Immich Data Backup FAILED" zkhan1093@gmail.com 
+    cron: '0 0 * * *' # daily
+    options:
+      forget:
+        <<: *keep
+
+  nextcloud-data:
+    to: bb-data
+    from: /mnt/media2/nextcloud-data
+    hooks:
+      success:
+        - cat ~/autorestic.log | /backup_scripts/send_email.sh "Nextcloud Data Backup SUCCESS" zkhan1093@gmail.com 
+      failure:
+        - cat ~/autorestic.log | /backup_scripts/send_email.sh "Nextcloud Data Backup FAILED" zkhan1093@gmail.com 
+    cron: '0 0 * * *' # daily
+    options:
+      forget:
+        <<: *keep
+
+
+
+  nas-data:
+    to: bb-data
+    from: /mnt/media2/nas-data/common
+    hooks:
+      success:
+        - cat ~/autorestic.log | /backup_scripts/send_email.sh "NAS Common Data Backup SUCCESS" zkhan1093@gmail.com 
+      failure:
+        - cat ~/autorestic.log | /backup_scripts/send_email.sh "NAS Common Data Backup FAILED" zkhan1093@gmail.com 
+    cron: '0 0 * * *' # daily
+    options:
+      forget:
+        <<: *keep
+
+backends:
+  bb-data:
+    type: b2
+    path: 'zee-backup:/data'
+  bb-db:
+    type: b2
+    path: 'zee-backup:/databases'
