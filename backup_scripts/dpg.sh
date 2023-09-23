@@ -122,10 +122,16 @@ fi
 
 # check if postgres container is running
 function check_container_running {
-  $ssh "docker ps | grep $container | grep Up"
+  # if ssh is not empty, then it is remote
+  if [ "$is_local" = true ]
+  then
+    docker ps | grep $container | grep Up
+  else
+    $ssh "docker ps | grep $container | grep Up"
+  fi
   if [ $? -ne 0 ]
   then
-    echo "postgres container not running"
+    echo "postgres container $container not running"
     exit 1
   fi
 }
@@ -149,7 +155,7 @@ function create_folder() {
 
 function copy_backup {
   echo "copying backup file from remote $server:$tmp_dir to $dest_dir"
-  $scp $server:$tmp_dir/$filename $dest_dir
+  $scp:$tmp_dir/$filename $dest_dir
   if [ $? -ne 0 ]
   then
     echo "failed to copy backup file"
@@ -216,7 +222,6 @@ then
   echo "creating backup locally"
   docker exec -t $container pg_dumpall -c -U $user | gzip > $dest_dir/$filename
 else
-  
   backup_remote
   copy_backup
   trap cleanup_remote EXIT
