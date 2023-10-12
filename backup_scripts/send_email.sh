@@ -9,9 +9,9 @@ function usage {
     echo "  -h, --help            print this help message"
 }
 
-# check if ssmtp is installed
-if ! command -v ssmtp &> /dev/null; then
-    echo "ssmtp is not installed"
+# check if ssmtp is installed using which 
+if [ ! -f $(which ssmtp) ]; then
+    echo "ssmtp not installed"
     exit 1
 fi
 

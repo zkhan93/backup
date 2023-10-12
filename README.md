@@ -1,18 +1,28 @@
-## setup autorestic to take postgres db backup up to backblaze
+## Personal Backup Solution
 
-## Home directory of the user
+This is a personal backup solution using [autorestic](http://autorestic.vercel.app/) and [restic](https://restic.readthedocs.io/en/latest/). The backup is stored in [backblaze](https://www.backblaze.com/).
 
-- .autorestic.env 
-- .autorestic.yml
-- *.sh
+### Tasks
+- [x] Setup autorestic
+- [x] Setup ssmtp
+- [x] Setup crontab
 
-Note: find and replace the home directory path in all above files
+
+## required files and directories
+
+create the following files in the home directory of the user
+
+- ~/.autorestic.env - contains the environment variables for autorestic
+- ~/.autorestic.yml - contains the configuration for autorestic
+- ~/autorestic.log - directory to store the logs
+- /backup_scripts - directory to store the backup scripts
 
  ### crontab
 ```bash
-PATH="/usr/local/bin:/usr/bin:/bin"
+PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin"
 
-*/5 * * * * autorestic -c /home/worker/.autorestic.yml --ci cron > /home/worker/autorestic.log 2>&1
+0 0 * * * /backup_scripts/keep_upto.sh -d /home/pi/autorestic.log/ -e .log -k 7 --skip-safe-check
+*/1 * * * * autorestic -c /home/pi/.autorestic.yml --ci -v cron >> /home/pi/autorestic.log/`date +\%Y\%m\%d`-cron.log &2>1
 ```
 
 #### SSMTP 
@@ -47,3 +57,10 @@ AuthUser=
 AuthPass=
 UseTLS=YES
 ```
+## References
+- [autorestic](http://autorestic.vercel.app/)
+- [restic](https://restic.readthedocs.io/en/latest/)
+- [backblaze](https://www.backblaze.com/)
+- [ssmtp](https://wiki.archlinux.org/title/SSMTP)
+- [crontab](https://crontab.guru/)
+
