@@ -5,7 +5,6 @@ extras:
       keep-daily: 10
       keep-weekly: 10
       keep-monthly: 10
-      
 
 locations:
   nextcloud-db:
@@ -13,15 +12,15 @@ locations:
     to: bb-db
     hooks:
       before:
-        - /backup_scripts/nextcloud.sh -s oci-somnath -n nextcloud-nextcloud-1 -c "maintenance:mode --on"
-        - /backup_scripts/dpg.sh -s oci-somnath -c nextcloud-db-1 -u nextcloud -d /backup/nextcloud/
-        - /backup_scripts/nextcloud.sh -s oci-somnath -n nextcloud-nextcloud-1 -c "maintenance:mode --off"
+        - '/backup_scripts/nextcloud.sh -s oci-somnath -n nextcloud-nextcloud-1 -c "maintenance:mode --on"'
+        - '/backup_scripts/dpg.sh -s oci-somnath -c nextcloud-db-1 -u nextcloud -d /backup/nextcloud/'
+        - '/backup_scripts/nextcloud.sh -s oci-somnath -n nextcloud-nextcloud-1 -c "maintenance:mode --off"'
       after:
-        - /backup_scripts/keep_upto.sh -d /backup/nextcloud/ -e .sql -k 0
+        - '/backup_scripts/keep_upto.sh -d /backup/nextcloud/ -e .gz -k 0'
       success:
-        - cat /home/pi/autorestic.log | /backup_scripts/send_email.sh "Nextcloud DB Backup SUCCESS" zkhan1093@gmail.com 
+        - 'echo "all ok" | /backup_scripts/autorestic_send_alert.sh "Nextcloud DB Backup SUCCESS"'
       failure:
-        - cat /home/pi/autorestic.log | /backup_scripts/send_email.sh "Nextcloud DB Backup FAILED" zkhan1093@gmail.com
+        - 'cat /home/pi/autorestic.log/`date +\%Y\%m\%d`-cron.log | /backup_scripts/autorestic_send_alert.sh "Nextcloud DB Backup FAILED"'
     cron: '0 0 * * *' # daily
     options:
       forget:
@@ -36,11 +35,11 @@ locations:
         - /backup_scripts/drd.sh -r oci-somnath -s nextcloud_nextcloud -d /backup/nextcloud-html -p nextcloud-html -v
         - /backup_scripts/nextcloud.sh -s oci-somnath -n nextcloud-nextcloud-1 -c "maintenance:mode --off"
       after:
-        - /backup_scripts/keep_upto.sh -d  /backup/nextcloud-html/ -e .tar.gz -k 0
+        - /backup_scripts/keep_upto.sh -d  /backup/nextcloud-html/ -e .gz -k 0
       success:
-        - cat /home/pi/autorestic.log | /backup_scripts/send_email.sh "Nextcloud Data Backup SUCCESS" zkhan1093@gmail.com 
+        - 'echo "all ok" | /backup_scripts/autorestic_send_alert.sh "Nextcloud Data Backup SUCCESS"'
       failure:
-        - cat /home/pi/autorestic.log | /backup_scripts/send_email.sh "Nextcloud Data Backup FAILED" zkhan1093@gmail.com 
+        - 'cat /home/pi/autorestic.log/`date +\%Y\%m\%d`-cron.log | /backup_scripts/autorestic_send_alert.sh "Nextcloud Data Backup FAILED"'
     cron: '0 0 * * *' # daily
     options:
       forget:
@@ -53,11 +52,11 @@ locations:
       before:
         - /backup_scripts/dpg.sh -c immich_postgres -u postgres -d /backup/immich/
       after:
-        - /backup_scripts/keep_upto.sh -d /backup/immich/ -e .sql -k 0
+        - /backup_scripts/keep_upto.sh -d /backup/immich/ -e .gz -k 0
       success:
-        - cat /home/pi/autorestic.log | /backup_scripts/send_email.sh "Immich DB Backup SUCCESS" zkhan1093@gmail.com 
+        - 'echo "all ok" | /backup_scripts/autorestic_send_alert.sh "Immich DB Backup SUCCESS"'
       failure:
-        - cat /home/pi/autorestic.log | /backup_scripts/send_email.sh "Immich DB Backup FAILED" zkhan1093@gmail.com 
+        - 'cat /home/pi/autorestic.log/`date +\%Y\%m\%d`-cron.log | /backup_scripts/autorestic_send_alert.sh "Immich DB Backup FAILED"'
     cron: '0 0 * * *' # daily
     options:
       forget:
@@ -68,9 +67,9 @@ locations:
     from: /mnt/media2/immich-data/library
     hooks:
       success:
-        - cat /home/pi/autorestic.log | /backup_scripts/send_email.sh "Immich Data Backup SUCCESS" zkhan1093@gmail.com 
+        - 'echo "all ok" | /backup_scripts/autorestic_send_alert.sh "Immich Data Backup SUCCESS"'
       failure:
-        - cat /home/pi/autorestic.log | /backup_scripts/send_email.sh "Immich Data Backup FAILED" zkhan1093@gmail.com 
+        - 'cat /home/pi/autorestic.log/`date +\%Y\%m\%d`-cron.log | /backup_scripts/autorestic_send_alert.sh "Immich Data Backup FAILED"'
     cron: '0 0 * * *' # daily
     options:
       forget:
@@ -81,24 +80,22 @@ locations:
     from: /mnt/media2/nextcloud-data
     hooks:
       success:
-        - cat /home/pi/autorestic.log | /backup_scripts/send_email.sh "Nextcloud Data Backup SUCCESS" zkhan1093@gmail.com 
+        - 'echo "all ok" | /backup_scripts/autorestic_send_alert.sh "Nextcloud Data Backup SUCCESS"'
       failure:
-        - cat /home/pi/autorestic.log | /backup_scripts/send_email.sh "Nextcloud Data Backup FAILED" zkhan1093@gmail.com 
+        - 'cat /home/pi/autorestic.log/`date +\%Y\%m\%d`-cron.log | /backup_scripts/autorestic_send_alert.sh "Nextcloud Data Backup FAILED"'
     cron: '0 0 * * *' # daily
     options:
       forget:
         <<: *keep
-
-
 
   nas-data:
     to: bb-data
     from: /mnt/media2/nas-data/common
     hooks:
       success:
-        - cat /home/pi/autorestic.log | /backup_scripts/send_email.sh "NAS Common Data Backup SUCCESS" zkhan1093@gmail.com 
+        - 'echo "all ok" | /backup_scripts/autorestic_send_alert.sh "NAS Common Data Backup SUCCESS"'
       failure:
-        - cat /home/pi/autorestic.log | /backup_scripts/send_email.sh "NAS Common Data Backup FAILED" zkhan1093@gmail.com 
+        - 'cat /home/pi/autorestic.log/`date +\%Y\%m\%d`-cron.log | /backup_scripts/autorestic_send_alert.sh "NAS Common Data Backup FAILED"'
     cron: '0 0 * * *' # daily
     options:
       forget:
