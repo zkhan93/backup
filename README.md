@@ -20,9 +20,11 @@ create the following files in the home directory of the user
  ### crontab
 ```bash
 PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin"
+MAILTO=""
 
 0 0 * * * /backup_scripts/keep_upto.sh -d /home/pi/autorestic.log/ -e .log -k 7 --skip-safe-check
-*/1 * * * * autorestic -c /home/pi/.autorestic.yml --ci -v cron >> /home/pi/autorestic.log/`date +\%Y\%m\%d`-cron.log &2>1
+0 5 * * *  /backup_scripts/autorestic_email_log_summary.sh /home/pi/autorestic.log/`date +\%Y\%m\%d`-cron.log
+*/10 * * * * autorestic -c /home/pi/.autorestic.yml --ci -v cron >> /home/pi/autorestic.log/`date +\%Y\%m\%d`-cron.log &2>1
 ```
 
 #### SSMTP 
