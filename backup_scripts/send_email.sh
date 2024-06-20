@@ -46,7 +46,8 @@ if [ -z "$SENDER" ]; then
 fi
 SUBJECT="Subject: $1"
 TO=$2
-FROM="FROM: $SENDER"
+FROM="From: $SENDER"
+CONTENT_TYPE="Content-Type: text/html"
 
 echo "SENDER: $SENDER"
 echo "SUBJECT: $SUBJECT"
@@ -55,7 +56,7 @@ echo "TO: $TO"
 # first line of the message body is the date, rest is the message from stdin
 BODY="Sent On: $(date)\n\n$(cat)"
 
-echo -e "$FROM\n$SUBJECT\n\n$BODY" |  ssmtp $TO 
+echo -e "$FROM\n$SUBJECT\n$CONTENT_TYPE\n\n$BODY" |  ssmtp $TO 
 if [ $? -ne 0 ]; then
     echo "failed to send email"
     exit 1

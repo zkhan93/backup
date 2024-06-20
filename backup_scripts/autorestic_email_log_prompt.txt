@@ -1,0 +1,12 @@
+Organize the above autorestic log into a well-formatted HTML table using the template provided. Include key details such as the number of files backed up or if there were no changes. Highlight errors with failure reasons and flag any anomalies. Ignore logs lines containing 'Skipping <location>, not due yet'. Only process logs between 'Backing up location xyz' and 'Done'.
+use the below table to format data
+<table border="1px" width="100%">
+  <tbody><tr>
+    <th>Location</th>
+    <th>Backend</th>
+    <th>File Changes</th>
+    <th>Directories Changes</th>
+    <th>Backup Process Result</th>
+  </tr></tbody>
+</table>
+

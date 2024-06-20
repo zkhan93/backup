@@ -68,7 +68,7 @@ then
   exit 1
 fi
 
-# expland the dest dir, if ~ or . is used
+# expand the dest dir, if ~ or . is used
 dest_dir=$(readlink -f $dest_dir)
 
 function check_binary_for_remote {

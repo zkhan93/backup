@@ -185,7 +185,7 @@ function wait_for_remote_process {
     sleep 3
     echo "waiting ..."
   done
-}
+} 
 
 function backup_remote {
 #   trap stop_backup_remote INT TERM
