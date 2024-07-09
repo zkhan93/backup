@@ -19,12 +19,18 @@ create the following files in the home directory of the user
 
  ### crontab
 ```bash
+# m h  dom mon dow   command
 PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin"
 MAILTO=""
 
-0 0 * * * /backup_scripts/keep_upto.sh -d /home/pi/autorestic.log/ -e .log -k 7 --skip-safe-check
-0 5 * * *  /backup_scripts/autorestic_email_log_summary.sh /home/pi/autorestic.log/`date +\%Y\%m\%d`-cron.log
+# Auto restic run every 10 min, logs to a files, file rotates daily and summary sent daily
+0 0 * * * . /home/pi/.profile; /backup_scripts/autorestic_email_log_summary.sh /home/pi/autorestic.log/$(date -d 'yesterday' +\%Y\%m\%d)-cron.log 2>&1
 */10 * * * * autorestic -c /home/pi/.autorestic.yml --ci -v cron >> /home/pi/autorestic.log/`date +\%Y\%m\%d`-cron.log &2>1
+0 0 * * * /backup_scripts/keep_upto.sh -d /home/pi/autorestic.log/ -e .log -k 7 --skip-safe-check &2>1
+
+# timelapse photos sync from phone to NAS using adb
+10 */6 * * * /backup_scripts/dadb.sh -p 192.168.1.53 -a 38025 -r /sdcard/DCIM/OpenCamera -l /mnt/ssd-4tb/timelapse/ -f *.jpg -c >> /mnt/ssd-4tb/timelapse/log/`date +\%Y\%m\%d`-cron.log  &2>1
+0 0 * * * /backup_scripts/keep_upto.sh -d /mnt/ssd-4tb/timelapse/log/ -e .log -k 7 --skip-safe-check &2>1
 ```
 
 #### SSMTP 
